@@ -65,6 +65,10 @@ sequenceDiagram
 - **Automatic refund:** a watchdog cancels anything past its deadline, long before the HTLC's on-chain timeout, so channels never force-close.
 - **Deposit-only mode:** lock only the delivery fee (goods in cash). Ends fake orders and gives sellers an easy first step.
 - **Verified reviews on Nostr:** a review carries the payment preimage. Anyone can check `sha256(preimage) == payment_hash` in their browser, so **a review can't exist without a real, completed delivery**. Signed with the buyer's own key if a NIP-07 extension exists, otherwise notarized.
+- **Inspect at the door:** the buyer taps "🛵 The rider is here", opens the package with a checklist and a 5-minute guide timer, and only then taps "✅ Package OK" to show the code. "❌ Something is wrong" explains that without the code nobody can take the money (seller cancel → instant refund, or automatic refund at the deadline).
+- **English, French and Wolof:** one tap in the header (EN · FR · WO), remembered on the phone; defaults to the phone's language. WhatsApp messages are sent in the chosen language too.
+- **Rider feels the payment:** a short beep and vibration on "Paid", so the rider doesn't have to stare at the screen at the door.
+- **Seller catalog editor:** add items, edit prices, remove items, and add the words customers use ("zobo", "bissap") so the order reader recognises them. Prices stay seller-controlled and are snapshotted into each order.
 - **Local currency first:** ₦ / F CFA in large type, sats in small type, rate locked at order time.
 - **Built for low bandwidth:** no framework, no build step, ~40 KB of JS, works on mid-range Android over 3G.
 
@@ -152,11 +156,10 @@ docs/pitch.md              3-minute pitch script
 ## Next iteration
 
 1. Each party brings their own wallet (NWC / LNbits / Breez SDK), with no server-held macaroons
-2. **Inspect at the door:** a short window for the buyer to check before releasing
-3. Offline rider mode (scan now, settle when back online)
-4. French and Wolof interface; voice prompts
-5. Cross-border orders (Lagos seller → Dakar buyer)
-6. Group buys: the order happens only if every buyer locks
+2. Offline rider mode (scan now, settle when back online)
+3. Voice prompts; Wolof copy reviewed by native speakers (the current Wolof is a first draft)
+4. Cross-border orders (Lagos seller → Dakar buyer)
+5. Group buys: the order happens only if every buyer locks
 
 ## License
 

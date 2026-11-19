@@ -44,10 +44,9 @@ Cash on delivery fails because buyers fear scams, sellers suffer fake orders, an
 - Small, reviewable commits with clear messages.
 
 ## Next tasks (in priority order)
-1. **French / Wolof toggle**: a tiny `i18n.js` dictionary for every user-facing string (EN, FR, WO); remember the choice in localStorage.
-2. **Sound + vibration on "Paid"** for the rider (`navigator.vibrate`, short WebAudio beep).
-3. **Inspect-at-door window**: the buyer taps "Package OK" before the QR appears; optional 5-minute timer.
-4. **Bring-your-own-wallet**: let the seller/rider connect LNbits or NWC instead of server-held macaroons; keep the mock and LND backends behind the same interface (`createHoldInvoice`, `lookup`, `settle`, `cancel`).
-5. **Offline rider**: cache the scanned code in IndexedDB and settle when back online; show "Paid ✓ (syncing)".
-6. **Seller catalog editor** (CRUD on `seller.catalog`, validated prices).
-7. Record the 3-minute demo video following `docs/pitch.md`.
+Done: French / Wolof toggle (`public/js/i18n.js` + `i18n-dict.js`, checked by `test/i18n.test.js`), sound + vibration on "Paid", inspect-at-door window, seller catalog editor.
+
+1. **Bring-your-own-wallet**: let the seller/rider connect LNbits or NWC instead of server-held macaroons; keep the mock and LND backends behind the same interface (`createHoldInvoice`, `lookup`, `settle`, `cancel`).
+2. **Offline rider**: cache the scanned code in IndexedDB and settle when back online; show "Paid ✓ (syncing)".
+3. Native-speaker review of the Wolof strings in `public/js/i18n-dict.js`.
+4. Record the 3-minute demo video following `docs/pitch.md`.

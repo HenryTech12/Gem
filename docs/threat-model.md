@@ -28,6 +28,8 @@
 | Two invoices with one hash | Avoided by design (wallets reject duplicate hashes); the rider preimage is derived. |
 | HTLC timeout / force close | App deadline (default 60 min) ≪ HTLC CLTV (144 blocks). The watchdog cancels early. |
 | Server crash with HTLCs held | State persisted to disk; the watchdog resumes on restart. Worst case LND auto-cancels near CLTV expiry and the buyer is refunded. |
+| Buyer pressured to release before checking | The QR stays hidden until the buyer taps "Package OK" after an inspect step; the rider screen tells the rider to let the buyer check. The "Something is wrong" path explains refunds without revealing the code. |
+| Price tampering via catalog | Catalog edits need the seller token; prices are validated integers (1–100M), names/aliases length-limited, ≤100 items. Orders snapshot prices, so a later edit can't change what a buyer already locked. The AI only picks item IDs. |
 | Fake reviews | A review must carry a preimage matching the order's payment hash, and the order must be PAID. Verifiable by anyone, in the browser. |
 | XSS / injection | No `innerHTML`; DOM built with `textContent`. Strict CSP (`script-src 'self'`, no inline). Input length and charset validation. JSON body ≤ 16 KB. |
 | Seller impersonation | Seller actions need a 192-bit token kept on the device; only its SHA-256 is stored; timing-safe compare. |
