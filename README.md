@@ -112,6 +112,10 @@ The mock backend implements the same hold-invoice state machine (OPEN → ACCEPT
 
 **Refund path:** lock and pay a second order, then press **↩️ Refund buyer** on the seller page, or set `LOCK_MINUTES=2` and wait.
 
+### Deploy on Render with real Lightning
+
+`render.yaml` deploys **gem-lnd**: bitcoind (regtest) + 3 LND nodes + Gëm in one container with a persistent disk (Starter plan), plus a free simulated backup. Step by step: [docs/deploy-render.md](docs/deploy-render.md).
+
 ### Public link from your laptop (real Lightning, free)
 
 `./tunnel.sh` runs the full regtest stack on your computer and prints a free public `https://….trycloudflare.com` link (Cloudflare quick tunnel). Works while the laptop stays awake and online. Step by step: [docs/deploy-laptop.md](docs/deploy-laptop.md).
@@ -120,7 +124,7 @@ The mock backend implements the same hold-invoice state machine (OPEN → ACCEPT
 
 `./deploy.sh` on any Docker server puts the full regtest stack (bitcoind + 3 LND nodes + Gëm) online behind HTTPS, with a free `sslip.io` address or your own domain. Step by step: [docs/deploy-vps.md](docs/deploy-vps.md).
 
-### Deploy (Render, simulated Lightning, one click)
+### Deploy (Render free plan, simulated Lightning only)
 
 The repo includes `render.yaml`. In Render: **New → Blueprint → pick this repo**, then fill in `GROQ_API_KEY` (optional) when asked. It runs with simulated Lightning, so no nodes or keys are needed, and Render provides HTTPS (required for the rider's camera).
 

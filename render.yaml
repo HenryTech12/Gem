@@ -1,6 +1,33 @@
-# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repo.
-# Runs Gëm with simulated Lightning (LN_BACKEND=mock): the full flow works with no nodes or keys.
+# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repo. Creates two services:
+#   gem-lnd  REAL Lightning: bitcoind (regtest) + 3 LND nodes + Gëm in one container, persistent disk.
+#            Paid: Starter plan (~$7/month) + 1 GB disk (~$0.25/month). Main demo link.
+#   gem      simulated Lightning (LN_BACKEND=mock), free plan. Backup link.
 services:
+  - type: web
+    name: gem-lnd
+    runtime: docker
+    dockerfilePath: ./render/Dockerfile
+    dockerContext: .
+    plan: starter                   # whole stack uses ~200 MB RAM; upgrade to standard if it ever runs out of memory
+    healthCheckPath: /api/health
+    disk:                           # bitcoind chain, LND wallets/channels, shops and orders
+      name: gem-lnd-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: TRUST_PROXY
+        value: "1"
+      - key: CURRENCY               # NGN (Lagos) or XOF (Dakar)
+        value: NGN
+      - key: BTC_PRICE_LOCAL        # 1 BTC in CURRENCY: update to today's price
+        value: "150000000"
+      - key: LOCK_MINUTES           # 2 for a live auto-refund demo
+        value: "60"
+      - key: GROQ_API_KEY           # optional, free at console.groq.com
+        sync: false
+      - key: NOSTR_NOTARY_SECRET_HEX  # optional, 64 hex chars (openssl rand -hex 32)
+        sync: false
+
   - type: web
     name: gem
     runtime: node
