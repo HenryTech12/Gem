@@ -1,6 +1,6 @@
 # Render Blueprint: Dashboard -> New -> Blueprint -> pick this repo. Creates two services:
 #   gem-lnd  REAL Lightning: bitcoind (regtest) + 3 LND nodes + Gëm in one container, persistent disk.
-#            Paid: Starter plan (~$7/month) + 1 GB disk (~$0.25/month). Main demo link.
+#            Paid: Standard plan (2 GB) + 1 GB disk (~$0.25/month). Main demo link.
 #   gem      simulated Lightning (LN_BACKEND=mock), free plan. Backup link.
 services:
   - type: web
@@ -8,7 +8,7 @@ services:
     runtime: docker
     dockerfilePath: ./render/Dockerfile
     dockerContext: .
-    plan: starter                   # whole stack uses ~200 MB RAM; upgrade to standard if it ever runs out of memory
+    plan: standard                  # 2 GB: LND wallet setup needs headroom (512 MB Starter ran out on first boot)
     healthCheckPath: /api/health
     disk:                           # bitcoind chain, LND wallets/channels, shops and orders
       name: gem-lnd-data
