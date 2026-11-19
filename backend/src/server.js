@@ -60,7 +60,7 @@ export async function createApp(overrides = {}) {
   };
 
   const wrap = (fn) => (req, res) =>
-    Promise.resolve(fn(req, res)).then((out) => res.json(out)).catch((e) => {
+    Promise.resolve().then(() => fn(req, res)).then((out) => res.json(out)).catch((e) => {
       const status = e instanceof HttpError ? e.status : 500;
       if (status === 500) console.error('[error]', e.message);
       res.status(status).json({ error: status === 500 ? 'Something went wrong' : e.message });
@@ -78,6 +78,10 @@ export async function createApp(overrides = {}) {
     const list = orders.sellerOrders(req.params.id, sellerToken(req));
     return list;
   }));
+
+  app.post('/api/sellers/:id/catalog', limiter(60, 60_000), wrap((req) => orders.addCatalogItem(req.params.id, sellerToken(req), req.body)));
+  app.put('/api/sellers/:id/catalog/:itemId', limiter(60, 60_000), wrap((req) => orders.updateCatalogItem(req.params.id, sellerToken(req), req.params.itemId, req.body)));
+  app.delete('/api/sellers/:id/catalog/:itemId', limiter(60, 60_000), wrap((req) => orders.deleteCatalogItem(req.params.id, sellerToken(req), req.params.itemId)));
 
   app.post('/api/ai/parse', limiter(30, 60_000), wrap(async (req) => {
     const seller = orders.authSeller(String(req.body.sellerId || ''), sellerToken(req));

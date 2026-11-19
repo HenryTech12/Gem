@@ -68,6 +68,55 @@ export function createOrders({ store, ln, config, nostr }) {
     return { id: s.id, name: s.name, catalog: s.catalog, delivered, rating: avg, reviews: reviews.reverse() };
   }
 
+  // ---------- catalog (seller-owned prices; orders snapshot prices, so edits never touch them) ----------
+  const MAX_CATALOG = 100;
+  function catalogInput(body, existing = {}) {
+    const name = body.name !== undefined ? str(body.name, { name: 'Item name', min: 2, max: 60, required: true }) : existing.name;
+    const price = body.price !== undefined ? int(body.price, { name: 'Price', min: 1, max: 100_000_000 }) : existing.price;
+    let aliases = existing.aliases || [];
+    if (body.aliases !== undefined) {
+      const raw = Array.isArray(body.aliases) ? body.aliases : String(body.aliases).split(',');
+      aliases = [...new Set(raw.slice(0, 10).map((a) => str(typeof a === 'string' ? a : '', { name: 'Alias', max: 30 }).toLowerCase()).filter(Boolean))];
+    }
+    if (!name) throw new HttpError(400, 'Item name is required');
+    if (!price) throw new HttpError(400, 'Price is required');
+    return { name, price, aliases };
+  }
+
+  function addCatalogItem(sellerId, token, body) {
+    const s = authSeller(sellerId, token);
+    if (s.catalog.length >= MAX_CATALOG) throw new HttpError(400, `A shop can have at most ${MAX_CATALOG} items`);
+    const fields = catalogInput(body);
+    const base = fields.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'item';
+    let id = base;
+    while (s.catalog.some((c) => c.id === id)) id = `${base}-${randomId(3).toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    const item = { id, ...fields };
+    s.catalog.push(item);
+    save();
+    return item;
+  }
+
+  function findItem(s, itemId) {
+    const idx = s.catalog.findIndex((c) => c.id === itemId);
+    if (idx < 0) throw new HttpError(404, 'Item not found');
+    return idx;
+  }
+
+  function updateCatalogItem(sellerId, token, itemId, body) {
+    const s = authSeller(sellerId, token);
+    const idx = findItem(s, itemId);
+    s.catalog[idx] = { id: s.catalog[idx].id, ...catalogInput(body, s.catalog[idx]) };
+    save();
+    return s.catalog[idx];
+  }
+
+  function deleteCatalogItem(sellerId, token, itemId) {
+    const s = authSeller(sellerId, token);
+    s.catalog.splice(findItem(s, itemId), 1);
+    save();
+    return { ok: true };
+  }
+
   // ---------- orders ----------
   function createOrder(sellerId, token, body) {
     const seller = authSeller(sellerId, token);
@@ -329,7 +378,7 @@ export function createOrders({ store, ln, config, nostr }) {
   }
 
   return {
-    createSeller, publicSeller, createOrder, getOrder, publicOrder, lock, refresh, settle,
+    createSeller, publicSeller, addCatalogItem, updateCatalogItem, deleteCatalogItem, createOrder, getOrder, publicOrder, lock, refresh, settle,
     cancelBySeller, demoPay, review, reviewTemplate, tick, sellerOrders, riderOrders, authSeller,
   };
 }

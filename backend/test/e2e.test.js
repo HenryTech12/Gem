@@ -129,3 +129,37 @@ test('security: wrong seller token rejected, bad hash rejected, deposit mode loc
   const locked = (await call('POST', `/api/orders/${order.id}/lock`, { paymentHash: hash, riderHash })).body;
   assert.deepEqual(Object.keys(locked.invoices), ['rider']);
 });
+
+test('catalog editor: seller CRUD, validated prices, parser and orders use it, old orders keep their price', async () => {
+  const { shop, h, order } = await newShopAndOrder();
+  const base = `/api/sellers/${shop.sellerId}/catalog`;
+  // auth + validation
+  assert.equal((await call('POST', '/api/orders', { sellerId: shop.sellerId, items: [{ id: 'gele', qty: 1 }], deliveryFee: 1000 }, { 'x-seller-token': 'nope' })).status, 401);
+  assert.equal((await call('POST', base, { name: 'Bissap juice', price: 500 }, { 'x-seller-token': 'nope' })).status, 401);
+  assert.equal((await call('POST', base, { name: 'Bissap juice', price: -5 }, h)).status, 400);
+  assert.equal((await call('POST', base, { name: 'Bissap juice', price: 12.5 }, h)).status, 400);
+  assert.equal((await call('POST', base, { name: 'x', price: 500 }, h)).status, 400);
+  // create
+  const item = (await call('POST', base, { name: 'Bissap juice (1L)', price: 1500, aliases: 'bissap, Zobo' }, h)).body;
+  assert.equal(item.id, 'bissap-juice-1l');
+  assert.deepEqual(item.aliases, ['bissap', 'zobo']);
+  const dup = (await call('POST', base, { name: 'Bissap juice (1L)', price: 1500 }, h)).body;
+  assert.notEqual(dup.id, item.id);
+  // parser finds it through an alias; price comes from the catalog
+  const parsed = (await call('POST', '/api/ai/parse', { sellerId: shop.sellerId, text: 'pls 3 zobo' }, h)).body;
+  assert.deepEqual(parsed.items.map((i) => [i.id, i.qty, i.unitPrice]), [['bissap-juice-1l', 3, 1500]]);
+  // update price: new orders use it, existing orders keep their snapshot
+  const gele = order.items.find((i) => i.id === 'gele');
+  const upd = await call('PUT', `${base}/gele`, { price: 7000 }, h);
+  assert.equal(upd.body.price, 7000);
+  assert.equal(upd.body.name, 'Aso-oke gele');
+  assert.equal((await call('GET', `/api/orders/${order.id}`)).body.items.find((i) => i.id === 'gele').unitPrice, gele.unitPrice);
+  const o2 = (await call('POST', '/api/orders', { sellerId: shop.sellerId, items: [{ id: 'gele', qty: 1 }], deliveryFee: 1000 }, h)).body;
+  assert.equal(o2.subtotal, 7000);
+  // delete: item can no longer be ordered
+  assert.equal((await call('DELETE', `${base}/${dup.id}`, null, h)).status, 200);
+  assert.equal((await call('DELETE', `${base}/${dup.id}`, null, h)).status, 404);
+  assert.equal((await call('POST', '/api/orders', { sellerId: shop.sellerId, items: [{ id: dup.id, qty: 1 }], deliveryFee: 1000 }, h)).status, 400);
+  const pub = (await call('GET', `/api/sellers/${shop.sellerId}`)).body;
+  assert.ok(pub.catalog.some((c) => c.id === item.id) && !pub.catalog.some((c) => c.id === dup.id));
+});
