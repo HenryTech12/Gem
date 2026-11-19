@@ -3,6 +3,12 @@
 > *Gëm* means "to trust" in Wolof.
 > **Dakar Bitcoin Hack by BTrust, 2026**
 
+**▶ Demo video (3 min):** https://youtu.be/yeDw0UkqjQc
+**🌐 Live demo, real LND nodes (regtest):** https://gem-lnd.onrender.com
+**🌐 Backup, simulated Lightning:** https://gem-ugoa.onrender.com
+
+On the live demo, pay with **⚡ Pay with demo wallet**: the nodes run on regtest, so real wallets can't pay these invoices.
+
 Online shopping on Instagram and WhatsApp in Lagos and Dakar runs on **cash on delivery**, because buyers and sellers don't trust each other:
 
 - **Buyers** won't pay first: some sellers take the money and disappear.

@@ -1,15 +1,15 @@
 # Submission text: Gëm
 
-Copy each section into the matching field of the submission form. Replace the two `<…>` links first.
+Copy each section into the matching field of the submission form.
 
 ---
 
 ## Links
 
-- **Live demo (real LND nodes, regtest):** `<gem-lnd URL>`
+- **Live demo (real LND nodes, regtest):** https://gem-lnd.onrender.com
 - **Backup (same app, simulated Lightning):** https://gem-ugoa.onrender.com
 - **Code:** https://github.com/HenryTech12/Gem
-- **Demo video:** `<video URL>`
+- **Demo video:** https://youtu.be/yeDw0UkqjQc
 
 ## Tagline
 
