@@ -155,8 +155,10 @@ backend/
   src/ai.js                order parsing (Groq AI → validated → catalog prices) + rule fallback
   src/nostr.js             verified-review events (sign / verify / publish)
   public/                  vanilla JS PWA: seller, buyer (/o/:id), rider, shop (/s/:id)
-  test/e2e.test.js         6 tests (mock)
+  test/*.test.js           15 tests: escrow flow, security, catalog, i18n, AI parsing (mock Lightning)
   test/lnd.integration.js  real-LND test: lock → settle, lock → expire → refund
+render/                    all-in-one image (bitcoind + 3 LND + app) for Render
+deploy.sh / tunnel.sh      public deploy on a VPS / from a laptop
 docs/threat-model.md       security design
 docs/pitch.md              3-minute pitch script
 ```
