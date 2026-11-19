@@ -1,0 +1,21 @@
+{
+  "name": "gem-backend",
+  "version": "1.0.0",
+  "description": "Gëm — delivery escrow on Lightning hold invoices. No one holds the money.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "LN_BACKEND=mock node --watch src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.22.3",
+    "nostr-tools": "^2.26.1",
+    "qrcode-generator": "^1.5.2"
+  }
+}

@@ -1,0 +1,109 @@
+# Gëm: full local Lightning network (regtest) + app.
+#   ./start.sh        one command: builds, starts, funds wallets, opens channels
+#   http://localhost:3000
+name: gem
+
+x-lnd: &lnd
+  image: lightninglabs/lnd:v0.18.3-beta
+  restart: unless-stopped
+  depends_on: [bitcoind]
+
+services:
+  bitcoind:
+    image: polarlightning/bitcoind:27.0
+    restart: unless-stopped
+    command:
+      - bitcoind
+      - -regtest=1
+      - -server=1
+      - -txindex=1
+      - -rpcuser=gem
+      - -rpcpassword=gem
+      - -rpcbind=0.0.0.0
+      - -rpcallowip=0.0.0.0/0
+      - -zmqpubrawblock=tcp://0.0.0.0:28332
+      - -zmqpubrawtx=tcp://0.0.0.0:28333
+      - -fallbackfee=0.0002
+      - -dnsseed=0
+      - -upnp=0
+    volumes: [bitcoind:/home/bitcoin/.bitcoin]
+
+  lnd-buyer:
+    <<: *lnd
+    command:
+      - --alias=buyer
+      - --tlsextradomain=lnd-buyer
+      - --noseedbackup
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind:18443
+      - --bitcoind.rpcuser=gem
+      - --bitcoind.rpcpass=gem
+      - --bitcoind.zmqpubrawblock=tcp://bitcoind:28332
+      - --bitcoind.zmqpubrawtx=tcp://bitcoind:28333
+      - --rpclisten=0.0.0.0:10009
+      - --restlisten=0.0.0.0:8080
+      - --listen=0.0.0.0:9735
+      - --trickledelay=1000
+    volumes: [lnd-buyer:/root/.lnd]
+
+  lnd-seller:
+    <<: *lnd
+    command:
+      - --alias=seller
+      - --tlsextradomain=lnd-seller
+      - --noseedbackup
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind:18443
+      - --bitcoind.rpcuser=gem
+      - --bitcoind.rpcpass=gem
+      - --bitcoind.zmqpubrawblock=tcp://bitcoind:28332
+      - --bitcoind.zmqpubrawtx=tcp://bitcoind:28333
+      - --rpclisten=0.0.0.0:10009
+      - --restlisten=0.0.0.0:8080
+      - --listen=0.0.0.0:9735
+      - --trickledelay=1000
+    volumes: [lnd-seller:/root/.lnd]
+
+  lnd-rider:
+    <<: *lnd
+    command:
+      - --alias=rider
+      - --tlsextradomain=lnd-rider
+      - --noseedbackup
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind:18443
+      - --bitcoind.rpcuser=gem
+      - --bitcoind.rpcpass=gem
+      - --bitcoind.zmqpubrawblock=tcp://bitcoind:28332
+      - --bitcoind.zmqpubrawtx=tcp://bitcoind:28333
+      - --rpclisten=0.0.0.0:10009
+      - --restlisten=0.0.0.0:8080
+      - --listen=0.0.0.0:9735
+      - --trickledelay=1000
+    volumes: [lnd-rider:/root/.lnd]
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on: [lnd-buyer, lnd-seller, lnd-rider]
+    env_file: [.env]
+    environment:
+      LN_BACKEND: lnd
+      LND_NETWORK: regtest
+      DATA_FILE: /data/gem.json
+    ports: ["3000:3000"]
+    volumes:
+      - app-data:/data
+      - lnd-buyer:/lnd/buyer:ro
+      - lnd-seller:/lnd/seller:ro
+      - lnd-rider:/lnd/rider:ro
+
+volumes:
+  bitcoind:
+  lnd-buyer:
+  lnd-seller:
+  lnd-rider:
+  app-data:
