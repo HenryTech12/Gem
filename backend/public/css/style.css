@@ -129,3 +129,18 @@ table.items tr.total td { color: var(--brand); }
   .seg button:hover { background: #f0f0f0; color: var(--black); border-color: var(--black); }
   .seg button.on:hover { background: var(--black); color: #fff; }
 }
+
+/* language switch */
+.langs { display: flex; gap: 4px; }
+.langs button { width: auto; min-height: 36px; padding: 4px 9px; font-size: 13px; background: transparent; border: 1px solid #555; color: #fff; border-radius: 8px; }
+.langs button.on { background: var(--brand); border-color: var(--brand); }
+@media (max-width: 420px) { header.top .tag { display: none; } }
+
+/* inspect-at-door */
+.inspect-timer { font-size: 18px; background: #f0f0f0; border-radius: 10px; padding: 10px 12px; }
+
+/* catalog editor */
+details.card > summary { cursor: pointer; min-height: 32px; list-style-position: inside; }
+details.card[open] > summary { margin-bottom: 8px; }
+.catrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.catrow input { width: 110px; padding: 8px; }

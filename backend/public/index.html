@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0f5c3f">
-<title>Gëm: pay on delivery, without cash</title>
+<title data-i18n="title.home">Gëm: pay on delivery, without cash</title>
 <link rel="stylesheet" href="/css/style.css">
 <link rel="icon" href="data:,">
 <script src="/vendor/qrcode.js" defer></script>
@@ -13,32 +13,32 @@
 <body>
 <header class="top">
   <a href="/" class="logo">G<span>ë</span>m</a>
-  <span class="tag">Delivery escrow · no one holds the money</span>
+  <span class="tag" data-i18n="tagline">Delivery escrow · no one holds the money</span>
 </header>
 <main class="wrap" id="app">
-<h1>Pay on delivery.<br>No cash. No scams.</h1>
-<p class="muted">The buyer’s money is <b>locked on the Lightning network</b>, not held by us, not by the seller. It is released only when the buyer shows a secret code at the door. If nothing arrives, it refunds itself.</p>
+<h1 data-i18n="home.h1">Pay on delivery. No cash. No scams.</h1>
+<p class="muted" data-i18n="home.intro"></p>
 <div class="roles">
-  <a class="role" href="/seller"><div class="card"><strong>🛍️ I sell</strong><p class="muted small">Turn a WhatsApp order into a secure payment link.</p></div></a>
-  <a class="role" href="/rider"><div class="card"><strong>🛵 I deliver</strong><p class="muted small">Scan the buyer’s code at the door. Get paid instantly. Carry no cash.</p></div></a>
-  <div class="card"><strong>🙋 I buy</strong><p class="muted small">Open the link your seller sent you on WhatsApp or Instagram.</p></div>
+  <a class="role" href="/seller"><div class="card"><strong data-i18n="home.sell">🛍️ I sell</strong><p class="muted small" data-i18n="home.sell.sub"></p></div></a>
+  <a class="role" href="/rider"><div class="card"><strong data-i18n="home.deliver">🛵 I deliver</strong><p class="muted small" data-i18n="home.deliver.sub"></p></div></a>
+  <div class="card"><strong data-i18n="home.buy">🙋 I buy</strong><p class="muted small" data-i18n="home.buy.sub"></p></div>
 </div>
 <div class="card">
-  <h2>How it works</h2>
+  <h2 data-i18n="home.how">How it works</h2>
   <ol class="steps">
-    <li>Your phone creates a <b>secret code</b>. Only its fingerprint is sent to the seller.</li>
-    <li>You pay. The money is <b>locked</b>: the seller can see it but cannot take it.</li>
-    <li>The rider arrives, you check the package and <b>show your code</b>.</li>
-    <li>Seller and rider are paid <b>in the same second</b>.</li>
-    <li>No delivery before the deadline? <b>Automatic refund.</b></li>
+    <li data-i18n="home.step1"></li>
+    <li data-i18n="home.step2"></li>
+    <li data-i18n="home.step3"></li>
+    <li data-i18n="home.step4"></li>
+    <li data-i18n="home.step5"></li>
   </ol>
 </div>
 <div class="card" id="network">
-  <div class="row between"><h2>Live network</h2><span class="small muted" id="netmode"></span></div>
-  <div class="net" id="netgrid"><div>Loading…</div></div>
-  <p class="small muted">Balances of the demo buyer, seller and rider Lightning nodes. <span class="lockedln">Red</span> = locked, waiting for delivery.</p>
+  <div class="row between"><h2 data-i18n="home.net">Live network</h2><span class="small muted" id="netmode"></span></div>
+  <div class="net" id="netgrid"><div data-i18n="loading">Loading…</div></div>
+  <p class="small muted" data-i18n="home.net.sub"></p>
 </div>
 </main>
-<footer>Gëm · Lightning hold invoices · Open source</footer>
+<footer data-i18n="footer">Gëm · Lightning hold invoices · Open source</footer>
 </body>
 </html>

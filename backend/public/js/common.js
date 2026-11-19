@@ -1,5 +1,8 @@
 // Shared helpers. No frameworks, no build step: fast on low-end phones and slow networks.
 import { sha256Bytes } from './sha256.js';
+import { t, locale } from './i18n.js';
+
+export { t, tx } from './i18n.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -39,24 +42,24 @@ export async function getHealth() {
 
 export function money(amount, currency) {
   try {
-    return new Intl.NumberFormat(currency === 'XOF' ? 'fr-SN' : 'en-NG', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+    return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
   } catch {
     return `${amount.toLocaleString()} ${currency}`;
   }
 }
-export const sats = (n) => `${Number(n).toLocaleString()} sats`;
+export const sats = (n) => `${Number(n).toLocaleString(locale)} sats`;
 
 export const STATUS_LABEL = {
-  AWAITING_LOCK: ['🕓', 'Waiting for buyer', 'muted'],
-  AWAITING_PAYMENT: ['💳', 'Waiting for payment', 'muted'],
-  PARTIAL: ['⏳', 'Payment in progress', 'warn'],
-  LOCKED: ['🔒', 'Money locked: safe to deliver', 'lock'],
-  PAID: ['✅', 'Delivered & paid', 'ok'],
-  REFUNDED: ['↩️', 'Refunded to buyer', 'bad'],
+  AWAITING_LOCK: ['🕓', 'muted'],
+  AWAITING_PAYMENT: ['💳', 'muted'],
+  PARTIAL: ['⏳', 'warn'],
+  LOCKED: ['🔒', 'lock'],
+  PAID: ['✅', 'ok'],
+  REFUNDED: ['↩️', 'bad'],
 };
 export function badge(status) {
-  const [icon, label, kind] = STATUS_LABEL[status] || ['•', status, 'muted'];
-  return h('span', { class: `badge badge-${kind}` }, `${icon} ${label}`);
+  const [icon, kind] = STATUS_LABEL[status] || ['•', 'muted'];
+  return h('span', { class: `badge badge-${kind}` }, `${icon} ${STATUS_LABEL[status] ? t(`status.${status}`) : status}`);
 }
 
 export function countdown(deadline, serverNow) {
@@ -76,7 +79,7 @@ export function qr(text, size = 6) {
   q.make();
   const img = new Image();
   img.src = q.createDataURL(size, 2);
-  img.alt = 'QR code';
+  img.alt = t('qr.alt');
   img.className = 'qr';
   return img;
 }
@@ -93,7 +96,7 @@ export async function copy(text, btn) {
   }
   if (btn) {
     const old = btn.textContent;
-    btn.textContent = '✓ Copied';
+    btn.textContent = t('copied');
     setTimeout(() => (btn.textContent = old), 1500);
   }
 }
@@ -136,4 +139,38 @@ export function poll(fn, ms) {
   };
   loop();
   return () => { stopped = true; };
+}
+
+// ---------- success feedback: short beep + vibration (riders often can't watch the screen) ----------
+let audio = null;
+// Browsers only allow sound after a tap. Call this from a click handler to unlock audio early,
+// so the beep still plays when the payment confirmation arrives a few seconds later.
+export function unlockAudio() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    audio = audio || new AC();
+    if (audio.state === 'suspended') audio.resume();
+  } catch { /* no audio: vibration and the big green screen still work */ }
+}
+
+export function celebrate() {
+  try { navigator.vibrate?.([180, 80, 180, 80, 320]); } catch { /* not supported */ }
+  try {
+    unlockAudio();
+    if (!audio) return;
+    const now = audio.currentTime;
+    [[880, 0], [1320, 0.16]].forEach(([freq, at]) => {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, now + at);
+      gain.gain.exponentialRampToValueAtTime(0.35, now + at + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + at + 0.22);
+      osc.connect(gain).connect(audio.destination);
+      osc.start(now + at);
+      osc.stop(now + at + 0.25);
+    });
+  } catch { /* ignore */ }
 }
