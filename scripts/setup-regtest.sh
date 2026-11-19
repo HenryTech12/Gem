@@ -29,12 +29,12 @@ fi
 
 echo "⛏  mining 101 blocks to the buyer wallet"
 mine 101
-wait_for "buyer sync" bash -c "docker compose exec -T lnd-buyer lncli --network=regtest getinfo | grep -q '\"synced_to_chain\": true'"
+wait_for "buyer sync" bash -c "docker compose exec -T lnd-buyer lncli --network=regtest getinfo | grep -qE '\"synced_to_chain\": +true'"
 wait_for "buyer funds" bash -c "[ \$(docker compose exec -T lnd-buyer lncli --network=regtest walletbalance | python3 -c 'import sys,json;print(json.load(sys.stdin)[\"confirmed_balance\"])') -gt 0 ]"
 
 SELLER=$(lncli seller getinfo | json "d['identity_pubkey']")
 RIDER=$(lncli rider getinfo | json "d['identity_pubkey']")
-for n in seller rider; do wait_for "$n sync" bash -c "docker compose exec -T lnd-$n lncli --network=regtest getinfo | grep -q '\"synced_to_chain\": true'"; done
+for n in seller rider; do wait_for "$n sync" bash -c "docker compose exec -T lnd-$n lncli --network=regtest getinfo | grep -qE '\"synced_to_chain\": +true'"; done
 
 echo "⚡ opening channels"
 lncli buyer openchannel --node_key="$SELLER" --connect=lnd-seller:9735 --local_amt=5000000 >/dev/null

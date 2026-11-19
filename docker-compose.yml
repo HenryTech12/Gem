@@ -1,6 +1,6 @@
-# Gëm: full local Lightning network (regtest) + app.
-#   ./start.sh        one command: builds, starts, funds wallets, opens channels
-#   http://localhost:3000
+# Gëm: full Lightning network (regtest) + app.
+#   ./start.sh        one command: builds, starts, funds wallets, opens channels -> http://localhost:3000
+#   ./deploy.sh       same on a public server, plus HTTPS (Caddy, profile "https")
 name: gem
 
 x-lnd: &lnd
@@ -94,14 +94,46 @@ services:
       LN_BACKEND: lnd
       LND_NETWORK: regtest
       DATA_FILE: /data/gem.json
-    ports: ["3000:3000"]
+    # deploy.sh sets GEM_BIND=127.0.0.1 so only Caddy (HTTPS) is reachable from the internet
+    ports: ["${GEM_BIND:-0.0.0.0}:3000:3000"]
     volumes:
       - app-data:/data
       - lnd-buyer:/lnd/buyer:ro
       - lnd-seller:/lnd/seller:ro
       - lnd-rider:/lnd/rider:ro
 
+  # Mines one regtest block every 10 minutes. With no new blocks, LND eventually considers its
+  # chain stale ("not synced") and refuses payments; this keeps a long-running demo healthy.
+  # Coinbase goes to an anyone-can-spend script: regtest coins, no value.
+  miner:
+    image: polarlightning/bitcoind:27.0
+    restart: unless-stopped
+    depends_on: [bitcoind]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          sleep 600
+          bitcoin-cli -regtest -rpcconnect=bitcoind -rpcuser=gem -rpcpassword=gem generatetodescriptor 1 'raw(51)' >/dev/null || echo "miner: bitcoind not ready"
+        done
+
+  # HTTPS for a public demo (camera scanning and crypto.subtle need it). Started by deploy.sh.
+  caddy:
+    image: caddy:2.8-alpine
+    profiles: [https]
+    restart: unless-stopped
+    depends_on: [backend]
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
 volumes:
+  caddy-data:
+  caddy-config:
   bitcoind:
   lnd-buyer:
   lnd-seller:

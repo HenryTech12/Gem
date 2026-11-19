@@ -97,7 +97,7 @@ docker compose exec backend node test/lnd.integration.js   # integration test ag
 cd backend
 npm install
 npm start                  # LN_BACKEND=mock by default
-npm test                   # 6 end-to-end tests
+npm test                   # end-to-end, i18n, AI and security tests
 ```
 
 The mock backend implements the same hold-invoice state machine (OPEN → ACCEPTED → SETTLED | CANCELED), so every screen works.
@@ -112,7 +112,11 @@ The mock backend implements the same hold-invoice state machine (OPEN → ACCEPT
 
 **Refund path:** lock and pay a second order, then press **↩️ Refund buyer** on the seller page, or set `LOCK_MINUTES=2` and wait.
 
-### Deploy (Render, one click)
+### Deploy on real Lightning (VPS, recommended for judging)
+
+`./deploy.sh` on any Docker server puts the full regtest stack (bitcoind + 3 LND nodes + Gëm) online behind HTTPS, with a free `sslip.io` address or your own domain. Step by step: [docs/deploy-vps.md](docs/deploy-vps.md).
+
+### Deploy (Render, simulated Lightning, one click)
 
 The repo includes `render.yaml`. In Render: **New → Blueprint → pick this repo**, then fill in `GROQ_API_KEY` (optional) when asked. It runs with simulated Lightning, so no nodes or keys are needed, and Render provides HTTPS (required for the rider's camera).
 
