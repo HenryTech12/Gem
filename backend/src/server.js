@@ -69,7 +69,7 @@ export async function createApp(overrides = {}) {
   const sellerToken = (req) => req.get('x-seller-token') || '';
 
   // ---------- API ----------
-  app.get('/api/health', wrap(async () => ({ ok: true, mode: ln.mode, currency: cfg.currency, btcPriceLocal: cfg.btcPriceLocal, lockMinutes: cfg.lockMinutes, ai: cfg.anthropicKey ? 'claude' : 'rules', notary: nostr.notaryNpub })));
+  app.get('/api/health', wrap(async () => ({ ok: true, mode: ln.mode, currency: cfg.currency, btcPriceLocal: cfg.btcPriceLocal, lockMinutes: cfg.lockMinutes, ai: cfg.groqKey ? 'groq' : 'rules', notary: nostr.notaryNpub })));
   app.get('/api/network', wrap(async () => ({ mode: ln.mode, nodes: await ln.info(), balances: await ln.balances() })));
 
   app.post('/api/sellers', limiter(10, 60_000), wrap((req) => orders.createSeller(req.body)));

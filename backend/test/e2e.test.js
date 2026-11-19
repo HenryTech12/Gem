@@ -19,7 +19,7 @@ const call = async (method, path, body, headers = {}) => {
 };
 
 before(async () => {
-  const { app, stop } = await createApp({ lnBackend: 'mock', dataFile: '', watchdogMs: 100, anthropicKey: '', nostrRelays: [] });
+  const { app, stop } = await createApp({ lnBackend: 'mock', dataFile: '', watchdogMs: 100, groqKey: '', nostrRelays: [] });
   stopApp = stop;
   await new Promise((r) => { server = app.listen(0, r); });
   base = `http://127.0.0.1:${server.address().port}`;
@@ -101,7 +101,7 @@ test('no delivery: seller cancels -> buyer refunded automatically', async () => 
 });
 
 test('deadline passes -> watchdog refunds automatically', async () => {
-  const { app, stop } = await createApp({ lnBackend: 'mock', dataFile: '', watchdogMs: 100, lockMinutes: 0.02, anthropicKey: '', nostrRelays: [] });
+  const { app, stop } = await createApp({ lnBackend: 'mock', dataFile: '', watchdogMs: 100, lockMinutes: 0.02, groqKey: '', nostrRelays: [] });
   const srv = await new Promise((r) => { const s = app.listen(0, () => r(s)); });
   const b = `http://127.0.0.1:${srv.address().port}`;
   const c = async (m, p, body, headers = {}) => (await fetch(b + p, { method: m, headers: { 'content-type': 'application/json', ...headers }, body: body ? JSON.stringify(body) : undefined })).json();

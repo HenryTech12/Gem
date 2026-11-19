@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { createApp } from '../src/server.js';
 
-const { app, stop } = await createApp({ lnBackend: 'lnd', dataFile: '', watchdogMs: 500, lockMinutes: 0.25, anthropicKey: '', nostrRelays: [] });
+const { app, stop } = await createApp({ lnBackend: 'lnd', dataFile: '', watchdogMs: 500, lockMinutes: 0.25, groqKey: '', nostrRelays: [] });
 const server = await new Promise((r) => { const s = app.listen(0, () => r(s)); });
 const base = `http://127.0.0.1:${server.address().port}`;
 const call = async (m, p, body, headers = {}) => {

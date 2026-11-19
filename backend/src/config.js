@@ -25,8 +25,9 @@ export const config = {
 
   dataFile: process.env.DATA_FILE || './data/gem.json',
 
-  anthropicKey: process.env.ANTHROPIC_API_KEY || '',
-  anthropicModel: process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5',
+  // Optional AI order reading via Groq (free tier). Without a key, the rule parser is used.
+  groqKey: process.env.GROQ_API_KEY || '',
+  groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
 
   nostrRelays: (process.env.NOSTR_RELAYS || '').split(',').map((s) => s.trim()).filter(Boolean),
   nostrNotarySecretHex: process.env.NOSTR_NOTARY_SECRET_HEX || '',

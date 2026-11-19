@@ -59,7 +59,7 @@ sequenceDiagram
 
 ## Features
 
-- **WhatsApp checkout link:** the seller pastes the customer's message; the order is read for them (Claude, or a built-in rule parser offline); a **💬 Send on WhatsApp** button shares a secure link. The buyer needs no app or account.
+- **WhatsApp checkout link:** the seller pastes the customer's message; the order is read for them (an AI model on Groq's free tier, or a built-in rule parser offline); a **💬 Send on WhatsApp** button shares a secure link. The buyer needs no app or account.
 - **Escrow without custody:** hold invoices on the seller and rider nodes; the server stores only hashes.
 - **Rider paid by the same code:** delivery fee locked separately and released together with the goods.
 - **Automatic refund:** a watchdog cancels anything past its deadline, long before the HTLC's on-chain timeout, so channels never force-close.
@@ -119,7 +119,8 @@ The mock backend implements the same hold-invoice state machine (OPEN → ACCEPT
 | `CURRENCY` | `NGN` | `NGN` or `XOF`; switches the demo catalog too |
 | `BTC_PRICE_LOCAL` | `150000000` | 1 BTC in local currency |
 | `LOCK_MINUTES` | `60` | auto-refund deadline |
-| `ANTHROPIC_API_KEY` | – | optional, enables Claude order reading |
+| `GROQ_API_KEY` | – | optional, enables AI order reading (free key at console.groq.com) |
+| `GROQ_MODEL` | `openai/gpt-oss-20b` | optional, any Groq chat model |
 | `NOSTR_RELAYS` | – | optional, e.g. `wss://relay.damus.io,wss://nos.lol` |
 
 ## Architecture
@@ -130,7 +131,7 @@ backend/
   src/orders.js            escrow state machine, watchdog, settle/cancel logic
   src/lightning/lnd.js     LND REST client (hold invoices, least-privilege macaroons)
   src/lightning/mock.js    in-memory Lightning with identical semantics
-  src/ai.js                order parsing (Claude → validated → catalog prices) + rule fallback
+  src/ai.js                order parsing (Groq AI → validated → catalog prices) + rule fallback
   src/nostr.js             verified-review events (sign / verify / publish)
   public/                  vanilla JS PWA: seller, buyer (/o/:id), rider, shop (/s/:id)
   test/e2e.test.js         6 tests (mock)

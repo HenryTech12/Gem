@@ -60,26 +60,25 @@ async function aiParse(text, catalog, config) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 12_000);
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    // Groq exposes an OpenAI-compatible Chat Completions API.
+    const body = {
+      model: config.groqModel,
+      temperature: 0,
+      max_completion_tokens: 1024,
+      messages: [{ role: 'system', content: system }, { role: 'user', content: text }],
+    };
+    // gpt-oss models reason before answering; keep it short to stay fast.
+    if (config.groqModel.startsWith('openai/gpt-oss')) body.reasoning_effort = 'low';
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       signal: ctrl.signal,
-      headers: {
-        'x-api-key': config.anthropicKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: config.anthropicModel,
-        max_tokens: 400,
-        system,
-        messages: [{ role: 'user', content: text }],
-      }),
+      headers: { authorization: `Bearer ${config.groqKey}`, 'content-type': 'application/json' },
+      body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error(`AI HTTP ${res.status}`);
     const data = await res.json();
-    const raw = data.content?.map((c) => c.text || '').join('') || '';
-    const json = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
-    return json;
+    const raw = data.choices?.[0]?.message?.content || '';
+    return JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
   } finally {
     clearTimeout(t);
   }
@@ -100,7 +99,7 @@ function sanitize(parsed, catalog) {
 }
 
 export async function parseOrder(text, catalog, config) {
-  if (config.anthropicKey) {
+  if (config.groqKey) {
     try {
       const out = sanitize(await aiParse(text, catalog, config), catalog);
       if (out.items.length) return { ...out, source: 'ai' };
