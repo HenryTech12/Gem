@@ -112,7 +112,11 @@ The mock backend implements the same hold-invoice state machine (OPEN → ACCEPT
 
 **Refund path:** lock and pay a second order, then press **↩️ Refund buyer** on the seller page, or set `LOCK_MINUTES=2` and wait.
 
-### Deploy on real Lightning (VPS, recommended for judging)
+### Public link from your laptop (real Lightning, free)
+
+`./tunnel.sh` runs the full regtest stack on your computer and prints a free public `https://….trycloudflare.com` link (Cloudflare quick tunnel). Works while the laptop stays awake and online. Step by step: [docs/deploy-laptop.md](docs/deploy-laptop.md).
+
+### Deploy on real Lightning (VPS)
 
 `./deploy.sh` on any Docker server puts the full regtest stack (bitcoind + 3 LND nodes + Gëm) online behind HTTPS, with a free `sslip.io` address or your own domain. Step by step: [docs/deploy-vps.md](docs/deploy-vps.md).
 

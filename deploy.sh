@@ -14,7 +14,7 @@ if [ -z "$DOMAIN" ]; then
 fi
 
 [ -f .env ] || cp .env.example .env
-setenv() { if grep -q "^$1=" .env; then sed -i "s|^$1=.*|$1=$2|" .env; else echo "$1=$2" >> .env; fi; }
+setenv() { if grep -q "^$1=" .env; then sed -i.bak "s|^$1=.*|$1=$2|" .env && rm -f .env.bak; else echo "$1=$2" >> .env; fi; }
 getenv() { grep "^$1=" .env | cut -d= -f2- || true; }
 setenv DOMAIN "$DOMAIN"
 setenv TRUST_PROXY 1          # Caddy is one proxy hop: rate limits see the real visitor IP

@@ -1,6 +1,7 @@
 # Gëm: full Lightning network (regtest) + app.
 #   ./start.sh        one command: builds, starts, funds wallets, opens channels -> http://localhost:3000
 #   ./deploy.sh       same on a public server, plus HTTPS (Caddy, profile "https")
+#   ./tunnel.sh       same on your laptop, plus a free public HTTPS link (Cloudflare quick tunnel, profile "tunnel")
 name: gem
 
 x-lnd: &lnd
@@ -130,6 +131,15 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
+
+  # Free public HTTPS link to a laptop: https://<random>.trycloudflare.com (no account needed).
+  # The link changes whenever this container restarts. Started by tunnel.sh.
+  tunnel:
+    image: cloudflare/cloudflared:2026.10.0
+    profiles: [tunnel]
+    restart: unless-stopped
+    depends_on: [backend]
+    command: ["tunnel", "--no-autoupdate", "--url", "http://backend:3000"]
 
 volumes:
   caddy-data:

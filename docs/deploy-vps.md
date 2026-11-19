@@ -53,8 +53,8 @@ starts HTTPS (Caddy gets a Let's Encrypt certificate) and prints your link.
 | Restart everything | `docker compose --profile https restart` |
 | Mine blocks manually | `./scripts/mine.sh 6` |
 | Prove it's real LND | `docker compose exec backend node test/lnd.integration.js` |
-| Stop | `docker compose --profile https down` (keeps data) |
-| Wipe and start over | `docker compose --profile https down -v && ./deploy.sh` |
+| Stop | `./stop.sh` (keeps data) |
+| Wipe and start over | `./stop.sh --reset && ./deploy.sh` |
 
 A `miner` container adds one block every 10 minutes so the nodes never consider the chain stale.
 
@@ -64,4 +64,4 @@ A `miner` container adds one block every 10 minutes so the nodes never consider 
   or your domain doesn't point at the server yet. See `docker compose logs caddy`.
 - **Let's Encrypt refused sslip.io** (rate limit on busy days): use your own domain, or a free one from duckdns.org.
 - **Demo wallet fails to pay after hundreds of demos**: the buyer's channels (5M sats to the seller, 1M to the rider)
-  ran low. Reset the network: `docker compose --profile https down -v && ./deploy.sh`.
+  ran low. Reset the network: `./stop.sh --reset && ./deploy.sh`.
