@@ -193,8 +193,14 @@ function render(force = false) {
         bigStatus('muted', '💳', t('order.pay.title'), h('span', {}, t('order.pay.expires'), ' ', h('b', { id: 'cd' }, countdown(o.deadline, o.now)))),
         summary(o),
         h('div', { class: 'card' }, h('p', { class: 'small muted' }, t('order.demopay.sub')), pay),
-        h('p', { class: 'muted center' }, t('order.anywallet')),
-        ...Object.entries(o.invoices).map(([role, inv]) => invoiceBlock(role, inv)),
+        // Regtest invoices (lnbcrt…) can't be paid by real wallets: show their status instead of wallet buttons.
+        ...(Object.values(o.invoices).some((i) => i.bolt11.startsWith('lnbcrt'))
+          ? [h('div', { class: 'card' },
+              h('p', { class: 'small muted' }, t('order.regtest')),
+              ...Object.entries(o.invoices).map(([role, inv]) => h('p', {}, inv.state === 'OPEN'
+                ? t(role === 'seller' ? 'inv.goods' : 'inv.fee', { sats: sats(inv.sats) })
+                : t(role === 'seller' ? 'inv.goods.locked' : 'inv.fee.locked', { sats: sats(inv.sats) }))))]
+          : [h('p', { class: 'muted center' }, t('order.anywallet')), ...Object.entries(o.invoices).map(([role, inv]) => invoiceBlock(role, inv))]),
       );
       break;
     }
