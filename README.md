@@ -112,6 +112,14 @@ The mock backend implements the same hold-invoice state machine (OPEN → ACCEPT
 
 **Refund path:** lock and pay a second order, then press **↩️ Refund buyer** on the seller page, or set `LOCK_MINUTES=2` and wait.
 
+### Deploy (Render, one click)
+
+The repo includes `render.yaml`. In Render: **New → Blueprint → pick this repo**, then fill in `GROQ_API_KEY` (optional) when asked. It runs with simulated Lightning, so no nodes or keys are needed, and Render provides HTTPS (required for the rider's camera).
+
+- The free plan sleeps after 15 minutes idle (first visit takes ~1 minute) and has no disk, so shops and orders reset on restart. A paid plan with the disk block in `render.yaml` keeps them.
+- Vercel and other serverless hosts don't fit: Gëm needs a long-running process for the refund watchdog and a disk for its data.
+- Any other Node host works the same way: root `backend`, build `npm ci --omit=dev`, start `node src/server.js`, and set `TRUST_PROXY=1` when behind the host's proxy.
+
 ## Configuration (`.env`)
 
 | Variable | Default | |
@@ -119,6 +127,7 @@ The mock backend implements the same hold-invoice state machine (OPEN → ACCEPT
 | `CURRENCY` | `NGN` | `NGN` or `XOF`; switches the demo catalog too |
 | `BTC_PRICE_LOCAL` | `150000000` | 1 BTC in local currency |
 | `LOCK_MINUTES` | `60` | auto-refund deadline |
+| `TRUST_PROXY` | `0` | number of proxies in front of the app (`1` on Render/Railway/Fly) so rate limits see the real client IP |
 | `GROQ_API_KEY` | – | optional, enables AI order reading (free key at console.groq.com) |
 | `GROQ_MODEL` | `openai/gpt-oss-20b` | optional, any Groq chat model |
 | `NOSTR_RELAYS` | – | optional, e.g. `wss://relay.damus.io,wss://nos.lol` |

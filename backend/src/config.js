@@ -11,6 +11,9 @@ const lndNode = (role) => ({
 
 export const config = {
   port: num(process.env.PORT, 3000),
+  // Number of reverse proxies in front of the app (Render/Railway/Fly = 1). 0 = none: then
+  // X-Forwarded-For is ignored, so clients can't spoof their IP to dodge rate limits.
+  trustProxy: num(process.env.TRUST_PROXY, 0),
   // "mock" = in-memory simulated Lightning (no Docker needed), "lnd" = real LND nodes
   lnBackend: (process.env.LN_BACKEND || 'mock').toLowerCase(),
   network: process.env.LND_NETWORK || 'regtest',

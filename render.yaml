@@ -1,0 +1,34 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repo.
+# Runs Gëm with simulated Lightning (LN_BACKEND=mock): the full flow works with no nodes or keys.
+services:
+  - type: web
+    name: gem
+    runtime: node
+    rootDir: backend
+    plan: free                      # free plan sleeps after 15 min idle and has no disk (see below)
+    buildCommand: npm ci --omit=dev
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: LN_BACKEND
+        value: mock
+      - key: TRUST_PROXY            # Render puts one proxy in front of the app
+        value: "1"
+      - key: CURRENCY               # NGN (Lagos) or XOF (Dakar)
+        value: NGN
+      - key: BTC_PRICE_LOCAL        # 1 BTC in CURRENCY; ~55000000 for XOF
+        value: "150000000"
+      - key: LOCK_MINUTES           # 2 for a live auto-refund demo
+        value: "60"
+      - key: GROQ_API_KEY           # optional, free at console.groq.com; asked for on first deploy
+        sync: false
+      - key: NOSTR_NOTARY_SECRET_HEX  # optional, 64 hex chars; keeps the review signer stable across restarts
+        sync: false
+    # To keep shops and orders across restarts, switch to a paid plan and uncomment:
+    # disk:
+    #   name: gem-data
+    #   mountPath: /data
+    #   sizeGB: 1
+    # and add an env var DATA_FILE=/data/gem.json

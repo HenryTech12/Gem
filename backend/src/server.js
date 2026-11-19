@@ -20,6 +20,7 @@ export async function createApp(overrides = {}) {
 
   const app = express();
   app.disable('x-powered-by');
+  if (cfg.trustProxy) app.set('trust proxy', cfg.trustProxy); // real client IP for rate limits
   app.use(express.json({ limit: '16kb' }));
 
   // Security headers. No inline scripts, no third-party origins.

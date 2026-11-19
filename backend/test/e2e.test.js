@@ -163,3 +163,23 @@ test('catalog editor: seller CRUD, validated prices, parser and orders use it, o
   const pub = (await call('GET', `/api/sellers/${shop.sellerId}`)).body;
   assert.ok(pub.catalog.some((c) => c.id === item.id) && !pub.catalog.some((c) => c.id === dup.id));
 });
+
+test('rate limits: per real client IP behind a proxy; X-Forwarded-For ignored without TRUST_PROXY', async () => {
+  const run = async (trustProxy) => {
+    const { app, stop } = await createApp({ lnBackend: 'mock', dataFile: '', trustProxy, groqKey: '', nostrRelays: [] });
+    const srv = await new Promise((r) => { const s = app.listen(0, () => r(s)); });
+    const b = `http://127.0.0.1:${srv.address().port}`;
+    const make = (ip) => fetch(`${b}/api/sellers`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-forwarded-for': ip }, body: JSON.stringify({ name: 'Shop' }) }).then((r) => r.status);
+    const statuses = [];
+    for (let i = 0; i < 11; i++) statuses.push(await make(trustProxy ? '41.0.0.1' : `41.0.0.${i}`));
+    const other = await make('41.0.0.99');
+    stop(); srv.close();
+    return { last: statuses.at(-1), other };
+  };
+  const proxied = await run(1);
+  assert.equal(proxied.last, 429);   // the same visitor is limited
+  assert.equal(proxied.other, 200);  // a different visitor is not
+  const direct = await run(0);
+  assert.equal(direct.last, 429);    // spoofed headers don't bypass the limit
+  assert.equal(direct.other, 429);
+});
